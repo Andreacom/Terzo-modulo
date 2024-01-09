@@ -1,0 +1,132 @@
+CREATE DATABASE Esercizi
+
+CREATE TABLE Store (
+ID_Store INT
+	IDENTITY (1,1),
+Telefono VARCHAR (15) UNIQUE,
+Indirizzo VARCHAR (40)
+CONSTRAINT PK_Store PRIMARY KEY (ID_Store)
+);
+
+INSERT INTO Store
+VALUES
+	('3528496849', 'Vicolo Adige, 23'),
+	('3529761982', 'Via Alfieri, 15'),
+	('0215978462', 'Via Alighieri, 3'),
+	('0215489638', 'Vicolo Ariosto, 12'),
+	('3259846851', 'Via Bellini, 6')
+
+CREATE TABLE Dipendenti (
+CodiceFiscale VARCHAR (20),
+NomeCognome VARCHAR (50),
+Indirizzo VARCHAR (40),
+TitoloStudio VARCHAR (50)
+CONSTRAINT PK_Dipendenti PRIMARY KEY (CodiceFiscale)
+)
+
+INSERT INTO Dipendenti
+VALUES 
+	('BBBJSC90L54C352E','Maria Alessi','Via Roma','Laurea'), 
+	('BBNNMR97R70B774R ','Giuseppe Aliano','Via Napoli','Diploma'),
+	('BBRGLC96H16D122N','Stefano Amici','Via Genova','Laurea'),
+	('MRBGPP96M48H224U','Serena Bianchini','Via Milano','Diploma'),
+	('TNLMLR98L65C352F','Andrea Cessari','Via Palermo','Terza Media')
+
+CREATE TABLE Ruolo (
+Ruoli VARCHAR (30),
+ID_Ruolo INT
+	IDENTITY (1,1),
+CONSTRAINT PK_Ruolo PRIMARY KEY (ID_Ruolo)
+	)
+
+INSERT INTO Ruolo
+VALUES 
+('Cassiera'), 
+('Macellaio'),
+('Fruttarolo'),
+('Scaffalista'), 
+('Direttore'),
+('Gastronomo')
+
+CREATE TABLE Periodo(
+DataIngresso DATE,
+DataUscita DATE ,
+ID_Store INT,
+ID_Ruolo INT,
+CodiceFiscale VARCHAR (20),
+CONSTRAINT FK_Periodo_Store FOREIGN KEY (ID_Store)
+	REFERENCES Store (ID_Store),
+CONSTRAINT FK_Periodo_Ruolo FOREIGN KEY (ID_Ruolo)
+	REFERENCES Ruolo (ID_Ruolo),
+CONSTRAINT FK_Periodo_CF FOREIGN KEY (CodiceFiscale)
+	REFERENCES Dipendenti (CodiceFiscale)
+)
+
+INSERT INTO Periodo
+VALUES
+	('2022/11/30','2023/02/16',1,5,'BBNNMR97R70B774R'),
+	('2019/07/15','2022/03/12',2,4,'BBRGLC96H16D122N'),
+	('2020/03/15','2022/04/12',3,3,'MRBGPP96M48H224U'),
+	('2021/05/13','2022/08/15',5,6,'BBBJSC90L54C352E'),		
+	('2023/02/01','2023/03/04',4,6,'BBBJSC90L54C352E'),
+	('2022/12/15','2023/05/02',3,1,'BBNNMR97R70B774R'),
+	('2023/05/13','2023/06/19',2,3,'BBRGLC96H16D122N'),
+	('2021/01/09','2024/09/13',1,4,'MRBGPP96M48H224U'),
+	('2022/03/23','2023/05/12',3,2,'TNLMLR98L65C352F'),
+	('2020/02/15','2021/02/15',2,2,'BBBJSC90L54C352E')
+
+CREATE TABLE Videogiochi (
+Titolo VARCHAR (30),
+Genere VARCHAR (30),
+AnnoUscita INT,
+Sviluppatore VARCHAR (50),
+Costo DEC (5,2),
+CONSTRAINT PK_Videogioco PRIMARY KEY (Titolo)
+)
+
+INSERT INTO Videogiochi
+VALUES 
+	('Wii Sports', 'Sport', 2006, 'Nintendo', 30),
+	('Super Mario Bros.', 'Platform', 1985, 'Nintendo', 15.5),
+	('Woody Woodpecker', 'Platform', 2002, 'Kemco', 50),
+	('Know How 2','Puzzle', 2010, '7G//AMES', 70.5),
+	('Pokemon Red/Pokemon Blue', 'Role-Playing', 1996, 'Nintendo', 40)
+
+CREATE TABLE Settore_Videogioco (
+TitoloVideogioco VARCHAR (30),
+ID_Settore INT,
+ID_Store INT,
+PosizioneNelSettore INT,
+Copie INT
+CONSTRAINT FK_Settore_Store FOREIGN KEY (ID_Store)
+	REFERENCES Store (ID_Store),
+CONSTRAINT FK_Settore_Videogioco FOREIGN KEY (TitoloVideogioco)
+	REFERENCES Videogiochi (Titolo)
+)
+
+INSERT INTO Settore_Videogioco
+VALUES 
+	('Know How 2', 3, 1, 5, 15),
+	('Pokemon Red/Pokemon Blue', 2, 2, 3, 22),
+	('Woody Woodpecker', 4, 3, 5, 15),
+	('Know How 2', 3, 4, 8, 3),
+	('Super Mario Bros.', 6, 5, 7, 5),
+	('Wii Sports', 9, 1, 7, 3),
+	('Woody Woodpecker', 8, 2, 4, 9),
+	('Pokemon Red/Pokemon Blue', 7, 3, 1, 6),
+	('Wii Sports', 8, 3, 4, 10),
+	('Super Mario Bros.', 6, 4, 4, 5),
+	('Pokemon Red/Pokemon Blue', 3, 5, 8, 20),
+	('Know How 2', 8, 1, 4, 4)
+
+/*
+Intervalli di tempo in cui cui ogni dipendente è associato ad uno store
+Ruolo ricoperto nello store in ogni intervallo temporale
+*/
+
+SELECT Dipendenti.NomeCognome, Ruolo.Ruoli, Store.Indirizzo, Periodo.DataIngresso, Periodo.DataUscita 
+FROM Periodo
+INNER JOIN Dipendenti ON Dipendenti.CodiceFiscale = Periodo.CodiceFiscale
+INNER JOIN Ruolo ON Ruolo.ID_Ruolo = Periodo.ID_Ruolo
+INNER JOIN Store ON Store.ID_Store = Periodo.ID_Store
+ORDER BY NomeCognome, DataIngresso
