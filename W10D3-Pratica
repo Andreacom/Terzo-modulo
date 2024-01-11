@@ -1,0 +1,38 @@
+/* Recuperate i nomi dei prodotti e i loro prezzi di listino per i prodotti nella categoria "Bikes".
+TIP: utilizzate le tabelle "DimProduct" e "DimProductCategory".*/
+SELECT PROD.EnglishProductName, PROD.ListPrice
+FROM DimProduct AS PROD
+LEFT JOIN DimProductSubcategory AS SUB ON PROD.ProductSubcategoryKey = SUB.ProductSubcategoryKey
+LEFT JOIN DimproductCategory AS CAT ON SUB.ProductCategoryKey = CAT.ProductCategoryKey
+WHERE CAT.EnglishProductCategoryName = 'Bikes'
+
+
+/* Elencate tutti i dipendenti e le relative vendite per l'anno 2019.
+TIP: utilizzate le tabelle "DimEmployee" e "FactResellerSales".*/
+SELECT EMP.LastName,
+	SUM(SALE.SalesAmount) AS SommaVendite
+FROM DimEmployee AS EMP
+LEFT JOIN FactResellerSales AS SALE ON EMP.EmployeeKey = SALE.EmployeeKey
+WHERE YEAR(SALE.DueDate) = 2019
+GROUP BY EMP.LastName
+
+
+/* Visualizzate i nomi di tutti i territori di vendita e l'importo totale delle vendite. 
+Includete solo i territori con importi di vendita superiori a $50,000.
+TIP: utilizzate le tabelle "DimSalesTerritory" e "FactResellerSales".*/
+SELECT TER.SalesTerritoryRegion,
+	SUM(RES.SalesAmount) AS ImportiVendita
+FROM DimSalesTerritory AS TER
+LEFT JOIN FactResellerSales AS RES ON TER.SalesTerritoryKey = RES.SalesTerritoryKey
+GROUP BY TER.SalesTerritoryRegion
+HAVING SUM(RES.SalesAmount)>50.000
+
+/* Recuperate i nomi dei prodotti e i loro importi totali delle vendite.
+TIP: utilizzate le tabelle "DimProduct" e "FactResellerSales".*/
+SELECT PROD.EnglishProductName,
+	SUM(SALE.SalesAmount) AS ImportoVendite
+FROM DimProduct AS PROD
+LEFT JOIN FactResellerSales AS SALE ON PROD.ProductKey = SALE.ProductKey
+GROUP BY PROD.EnglishProductName
+ORDER BY ImportoVendite DESC
+
