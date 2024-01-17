@@ -1,0 +1,76 @@
+CREATE TABLE Disco (
+NroSerie INT
+	IDENTITY (1,1),
+TitoloAlbum VARCHAR(50),
+Anno INT,
+Prezzo DEC (5,2)
+CONSTRAINT PK_Disco PRIMARY KEY (NroSerie)
+)
+
+CREATE TABLE Esecuzione(
+CodiceReg INT
+	IDENTITY (1,1),
+TitoloCanzone VARCHAR(50),
+Anno INT
+CONSTRAINT PK_Esecuzione PRIMARY KEY (CodiceReg)
+)
+
+
+CREATE TABLE Contiene(
+NroSerieDisco INT,
+CodiceReg INT,
+NroProg INT
+	IDENTITY (1,1),
+CONSTRAINT PK_Contiene PRIMARY KEY (NroProg),
+CONSTRAINT FK_Contiene_Disco FOREIGN KEY (NroSerieDisco)
+	REFERENCES Disco(NroSerie),
+CONSTRAINT FK_Contiene_Esecuzione FOREIGN KEY (CodiceReg)
+	REFERENCES Esecuzione(CodiceReg)
+)
+
+CREATE TABLE Autore(
+Nome VARCHAR (20),
+TitoloCanzone VARCHAR (50),
+CONSTRAINT PK_Autore PRIMARY KEY (Nome)
+)
+
+CREATE TABLE Cantante(
+NomeCantante VARCHAR(50),
+CodiceReg INT,
+CONSTRAINT FK_Cantante_Esecuzione FOREIGN KEY (CodiceReg)
+	REFERENCES Esecuzione (CodiceReg)
+)
+
+--I cantautori (persone che hanno cantato e scritto la stessa canzone) il cui nome inizia per 'D’
+SELECT Cantante.NomeCantante
+WHERE Cantante
+INNER JOIN Esecuzione ON Esecuzione.CodiceReg = Cantante.CodiceReg
+INNER JOIN Autore ON Cantante.NomeCantante = Autore.Nome
+WHERE Autore.Nome LIKE 'D%'
+
+--I titoli dei dischi che contengono canzoni di cui non si conosce l'anno di registrazione
+SELECT TitoloAlbum
+FROM Disco
+WHERE Anno IS NULL
+
+--I cantanti che hanno sempre registrato canzoni come solisti.
+SELECT TitoloCanzone,
+	COUNT (Nome)
+FROM Autore
+GROUP BY TitoloCanzone
+HAVING COUNT (Nome) = 1
+
+------------------------------------------------
+------------------------------------------------
+--Per ogni studente, visualizzare gli esami sostenuti con voto maggiore di 28 assieme alla matricola dello studente e al nome del docente che ha tenuto il corso
+SELECT Studente.Nome, Studente.matricola, Corso.Nome, Docente.Nome
+FROM Studente
+INNER JOIN Esame ON Studente.Matricola = Esame.MatricolaStudente
+INNER JOIN Corso ON Esame.CodiceCorso = Corso.Codice
+INNER JOIN Docente ON Corso.MatricolaDocente = Docente.Matricola
+WHERE Esame.Voto > 28
+
+SELECT Docente.Nome, Corso.Nome, Esame.Settore
+FROM Docente
+LEFT JOIN Corso ON Docente.Matricola = Corso.MatricolaDocente
+LEFT JOIN Esame ON Corso.Codice = Esame.CodiceCorso
