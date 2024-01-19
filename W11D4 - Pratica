@@ -1,0 +1,61 @@
+/*
+Elenco delle transazioni dei clienti canadesi nel 2010
+1) Transazioni nel 2010
+2) clienti canadesi
+*/
+
+SELECT CustomerKey
+FROM FactInternetSales
+WHERE YEAR (OrderDate) = 2010
+
+SELECT CONCAT (FirstName, ' ', LastName) AS NomeCognome
+FROM DimCustomer
+
+SELECT GeographyKey
+FROM DimGeography
+WHERE EnglishCountryRegionName = 'Canada'
+
+SELECT DimCustomer.CustomerKey
+		, CONCAT (FirstName, ' ', LastName) AS NomeCognome
+FROM DimCustomer
+WHERE CustomerKey IN (SELECT CustomerKey
+					FROM FactInternetSales
+					WHERE YEAR (OrderDate) = 2010)
+AND
+		GeographyKey IN (SELECT GeographyKey
+						FROM DimGeography
+						WHERE EnglishCountryRegionName = 'Canada')
+
+/*
+Calcola l’ultima volta che è stato venduto ciascun prodotto.
+Il result set deve esporre anche il nome prodotto
+1) lista prodotti
+2) Data massima
+*/
+
+SELECT MAX(OrderDate)
+FROM FactResellerSales
+
+SELECT DISTINCT S1.SalesOrderNumber
+			, S1.OrderDate		 
+FROM FactResellerSales AS S1
+WHERE S1.OrderDate = (SELECT MAX(OrderDate)
+						FROM FactResellerSales AS S2
+						WHERE S1.SalesOrderNumber = S2.SalesOrderNumber)
+
+/*
+Esponi in output per ciascun codice documento (SalesOrderNumber) 
+l’ultima riga di corpo (SalesorderLineNumber)
+1) lista sales orede number
+2)massimo orderLine
+*/
+
+SELECT DISTINCT SalesOrderLineNumber 
+				, SalesOrderNumber
+				, DimProduct.EnglishProductName
+FROM FactResellerSales AS S1
+	LEFT JOIN DimProduct ON S1.ProductKey = DimProduct.ProductKey
+WHERE SalesOrderLineNumber = (SELECT MAX(SalesOrderLineNumber)
+								FROM FactResellerSales AS S2
+								WHERE S1.SalesOrderNumber = S2.SalesOrderNumber)
+ORDER BY SalesOrderLineNumber DESC
