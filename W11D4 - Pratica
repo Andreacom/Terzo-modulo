@@ -59,3 +59,48 @@ WHERE SalesOrderLineNumber = (SELECT MAX(SalesOrderLineNumber)
 								FROM FactResellerSales AS S2
 								WHERE S1.SalesOrderNumber = S2.SalesOrderNumber)
 ORDER BY SalesOrderLineNumber DESC
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+--Visualizzare per ogni studente la matricola, il nome, il voto massimo, minimo e medio conseguito negli esami
+
+SELECT s.Matricola
+	, s.Nome
+	, MAX (e.Voto)
+	, MIN (e.Voto)
+	, AVG (e.Voto)
+FROM Studente AS s
+LEFT JOIN Esame as e ON Studente.Matricola = Esame.MatricolaStudente
+GROUP BY s.Matricola, s.Nome
+
+/*
+Visualizzare - per ogni studente con media voti maggiore di 25 
+e che ha sostenuto esami in almeno 10 date
+la matricola, il nome, il voto massimo, minimo e medio conseguito negli esami.
+Ordinare per voto.
+*/
+
+SELECT 
+	s.Matricola
+	, s.Nome
+	, MAX (e.Voto)
+	, MIN (e.Voto)
+	, AVG (e.Voto)
+FROM Studente AS s
+LEFT JOIN Esame AS e ON Studente.Matricola = Esame.MatricolaStudente
+GROUP BY s.Matricola, s.Nome
+HAVING AVG(e.Voto) > 25 AND COUNT(e.Data) >= 10
+ORDER BY Voto
+
+---------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
