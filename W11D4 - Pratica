@@ -40,8 +40,8 @@ SELECT DISTINCT S1.SalesOrderNumber
 			, S1.OrderDate		 
 FROM FactResellerSales AS S1
 WHERE S1.OrderDate = (SELECT MAX(OrderDate)
-						FROM FactResellerSales AS S2
-						WHERE S1.SalesOrderNumber = S2.SalesOrderNumber)
+			FROM FactResellerSales AS S2
+			WHERE S1.SalesOrderNumber = S2.SalesOrderNumber)
 
 /*
 Esponi in output per ciascun codice documento (SalesOrderNumber) 
@@ -95,6 +95,64 @@ ORDER BY Voto
 
 ---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
+
+--Per ogni studente che ha partecipato a 3 concorsi di master, visualizzare il nome dello studente e il settore scientifico per cui ha partecipato a tutti i concorsi. Ordinare per Nome dello studente
+SELECT s.NomeStudente
+	, d.Settore-Scientifico
+FROM part
+INNER JOIN Studente AS s ON part.MatricolaStudente = s.Matricola 
+INNER JOIN Dipartimento AS d ON part.CodiceDipartimento = s.CodiceDipartimento
+INNER JOIN ConcorsoMaster AS c ON part.CodiceMaster = c.CodiceMaster
+WHERE part.MatricolaStudente IN (SELECT part.MatricolaStudente
+				, COUNT(part.CodiceMaster)
+				FROM PartecipatoConcorsoMaster AS part
+				GROUP BY part.MatricolaStudente
+				HAVING COUNT(part.CodiceMaster) = 3)
+ORDER BY s.NomeStudente
+
+/*
+Per i dipartimenti in cui sono stati effettuati solo concorsi di master 
+aventi ciascuno un numero di posti disponibili superiore a 7, 
+visualizzare il nome del dipartimento, il settore scientifico di afferenza 
+e il numero di concorsi di master. 
+Ordinare per nome del dipartimento e settore scientifico
+*/
+
+SELECT d.NomeDipartimento
+	, d.SettoreScientifico
+	, COUNT (c.CodiceMaster)
+FROM Dipartimento AS d
+INNER JOIN ConcorsoMaster AS c ON d.CodiceDipartimento = c.CodiceDipartimento
+WHERE c.NumeroPostiDisponibili >= 7
+GROUP BY d.NomeDipartimento, d.SettoreScientifico
+ORDER BY d.NomeDipartimento, d.SettoreScientifico
+
+/*
+Visualizzare la matricola e il nome degli studenti che hanno conseguito un voto di laurea superiore a 100
+ed hanno partecipato ad almeno due concorsi di master con la stessa data di pubblicazione
+*/
+
+SELECT s.Matricola, s.NomeStudente
+FROM Studente AS s1
+(JOIN PartecipatoConcorsoMaster AS pcm1 ON s1.Matricola = pcm1.MatricolaStudente
+JOIN Concorso AS c1 ON pcm1.CodiceMaster = c1.CodiceMaster) AS Q1
+WHERE s.VotoLaurea > 100
+	AND
+s.Matricola IN ( SELECT s2.Matricola
+			, COUNT (c2.CodiceMaster)
+		FROM Studente AS s2
+		(JOIN PartecipatoConcorsoMaster AS pcm2 ON s2.Matricola = pcm2.MatricolaStudente
+		JOIN Concorso AS c2 ON pcm2.CodiceMaster = c2.CodiceMaster) AS Q2
+		WHERE c2.CodiceMaster = 
+			(SELECT c3.Codicemaster
+			FROM ConcorsoMaster AS c3
+			(JOIN PartecipatoConcorsoMaster AS pcm3 ON s3.Matricola = pcm3.MatricolaStudente
+			JOIN Concorso AS c3 ON pcm3.CodiceMaster = c3.CodiceMaster) AS Q3
+			WHERE Q2.DataPubblicazione = Q3.DataPubblicazione
+			GROUP BY s3.Matricola
+			HAVING COUNT (c3.CodiceMaster) >= 2))
+
+
 
 
 
