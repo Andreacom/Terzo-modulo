@@ -1,0 +1,15 @@
+/*
+Visualizzare la data di assunzione 
+dei manager e i loro id
+appartenenti al dipartimento ’Amministrazione’ 
+nel formato Nome mese, giorno, anno
+*/
+
+SELECT dpt.ID_Manager
+        , CONCAT (DATENAME(MONTH, dpn.data_assunzione), '-', DAY (dpn.data_assunzione), '-', YEAR (dpn.data_assunzione)) AS Assunzione
+FROM Dipartimento as dpt
+JOIN Dipendente as dpn ON Dipartimento.ID_Manager = Dipendente.ID_Manager
+WHERE Nome_Dip = 'Amministrazione'
+
+/*
+
