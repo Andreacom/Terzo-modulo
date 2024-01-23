@@ -12,4 +12,34 @@ JOIN Dipendente as dpn ON Dipartimento.ID_Manager = Dipendente.ID_Manager
 WHERE Nome_Dip = 'Amministrazione'
 
 /*
+Visualizzare il nome e il cognome dei dipendenti assunti nel mese di Giugno
+*/
+SELECT  Nome
+        , Cognome
+FROM Dipendente
+GROUP BY Nome, Cognome
+HAVING MONTH (data_assunzione) = 6
+
+/*
+Visualizzare gli anni in cui più di 10 dipendenti sono stati assunti
+*/
+
+SELECT YEAR(data_assunzione)
+        , COUNT (*)
+FROM Dipendenti
+GROUP BY YEAR (data_assunzione)
+HAVING COUNT (*) > 10
+
+/*
+Visualizzare il nome del dipartimento, il nome del manager, il salario del manager
+di tutti i manager la cui esperienza è maggiore di 5 anni
+*/
+
+SELECT dpt.nome_dip
+        , dpt.nome_dip
+        , dpn.salario
+FROM Dipendente AS dpn
+JOIN Dipartimento AS dpt ON Dipendente.id_Manager = Dipartimento.id_Manager
+WHERE DATEDIFF (YEAR, dpn.data_assunzione, GETDATE()) > 5
+
 
